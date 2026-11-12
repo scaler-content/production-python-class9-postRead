@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Class 9 Post-Read</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky chapter bar, then one long reading column with interactive "desk" widgets.
+   Palette: carrier-label world. Navy ink, signal blue, tape yellow, plus green/red for pass/fail. Single light look. */
+:root{
+  --bg:#F5F7FB; --surface:#FFFFFF; --ink:#16233B; --muted:#56627C; --line:#D9DFEB;
+  --blue:#2A63D8; --blue-soft:#E6EDFC; --tape:#F5C531; --tape-soft:#FFF3C9;
+  --ok:#17825A; --ok-soft:#E2F4EA; --bad:#C23B3B; --bad-soft:#FCE8E8;
+  --code-bg:#EEF2F9; --kw:#2A63D8; --str:#17825A; --cmt:#74809A; --num:#B24F12;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+.wrap{max-width:960px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.7rem,4vw,2.3rem);font-weight:800;letter-spacing:-.02em}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0 0 .9em;max-width:68ch}
+a{color:var(--blue)}
+code,.mono{font-family:var(--mono);font-size:.9em}
+:not(pre)>code{background:var(--code-bg);padding:.1em .35em;border-radius:4px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+button{font:inherit;cursor:pointer}
+
+/* chapter bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));
+  padding:0 max(16px,env(safe-area-inset-left,0px));background:rgba(245,247,251,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:960px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;padding:10px 0;scrollbar-width:thin}
+.bar a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:.85rem;font-weight:500;padding:5px 11px;border-radius:99px;border:1px solid transparent}
+.bar a:hover{color:var(--ink);background:var(--blue-soft)}
+.bar a.on{background:var(--ink);color:#fff}
+.prog{height:3px;background:var(--line);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)))}
+.prog i{display:block;height:100%;width:0;background:var(--tape)}
+
+/* hero */
+.hero{padding:56px 0 40px;display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center}
+.eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.hero h1{font-size:clamp(2.3rem,6.4vw,4rem);font-weight:800;letter-spacing:-.03em}
+.hero h1 mark{background:linear-gradient(transparent 58%,var(--tape) 58%);color:inherit;padding:0 .08em}
+.lede{font-size:1.15rem;color:var(--muted);margin:18px 0 22px}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.pill{font-size:.82rem;padding:4px 11px;border-radius:99px;background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+.label-card{background:var(--surface);border:2px solid var(--ink);border-radius:6px;padding:0;box-shadow:6px 6px 0 var(--tape);transform:rotate(1.2deg);max-width:340px;justify-self:center;width:100%}
+.label-card .top{background:var(--ink);color:#fff;padding:8px 14px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:.78rem;letter-spacing:.06em}
+.label-card .mid{padding:14px;font-family:var(--mono);font-size:.88rem;display:grid;gap:4px}
+.label-card .mid b{font-family:var(--display);font-size:1.7rem;letter-spacing:-.01em}
+.label-card .late{margin:0 14px 14px;padding:8px 10px;background:var(--bad-soft);color:var(--bad);font-weight:600;border:1px dashed var(--bad);border-radius:4px;font-family:var(--mono);font-size:.85rem}
+.bars{height:26px;margin:0 14px 14px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 6px,transparent 6px 10px)}
+
+section{padding:48px 0 8px;scroll-margin-top:64px}
+.kicker{font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.intro{color:var(--muted);margin:12px 0 26px;max-width:62ch}
+
+/* panels */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px}
+.row{display:grid;gap:18px}
+.two{grid-template-columns:1fr 1fr}
+.three{grid-template-columns:repeat(3,1fr)}
+.two>*,.three>*{min-width:0}
+
+/* playground */
+.desk{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+.desk>*{min-width:0}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.btn{background:var(--ink);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:600}
+.btn:hover{background:#243759}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--blue-soft)}
+.sw{display:flex;gap:8px;align-items:center;font-size:.92rem;color:var(--muted)}
+.sw input{width:18px;height:18px;accent-color:var(--blue)}
+.cases{display:grid;gap:8px}
+.cc{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-left:6px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--surface);transition:background .25s,border-color .25s}
+.cc .id{font-family:var(--mono);font-weight:500;font-size:.88rem}
+.cc .st{font-size:.82rem;color:var(--muted);line-height:1.35}
+.cc .st b{color:var(--ink);font-weight:600}
+.tag{font-family:var(--mono);font-size:.72rem;padding:3px 8px;border-radius:99px;background:var(--code-bg);color:var(--muted);white-space:nowrap}
+.cc.flag{border-left-color:var(--bad);background:var(--bad-soft)}
+.cc.flag .tag{background:var(--bad);color:#fff}
+.cc.closed{border-left-color:var(--ok)}
+.cc.closed .tag{background:var(--ok-soft);color:var(--ok)}
+.cc.ontime{border-left-color:var(--blue)}
+.cc.ontime .tag{background:var(--blue-soft);color:var(--blue)}
+.tally{margin-top:12px;font-weight:600}
+
+/* code */
+.code{min-width:0;max-width:100%;position:relative;background:var(--code-bg);border:1px solid var(--line);border-radius:10px;margin:0}
+.code pre{margin:0;padding:16px 16px 16px;overflow-x:auto;font-family:var(--mono);font-size:.84rem;line-height:1.65;tab-size:4}
+.code .cp{position:absolute;top:8px;right:8px;font-size:.74rem;padding:3px 9px;border-radius:6px;background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+.code .cp:hover{color:var(--ink);background:var(--blue-soft)}
+.k{color:var(--kw);font-weight:500}.s{color:var(--str)}.c{color:var(--cmt);font-style:italic}.n{color:var(--num)}
+.hl{background:var(--tape-soft);outline:1px solid var(--tape);border-radius:3px}
+
+/* path */
+.path{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:s}
+.path li{position:relative;padding:0 0 22px 54px;counter-increment:s}
+.path li::before{content:counter(s);position:absolute;left:0;top:0;width:36px;height:36px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-family:var(--display);font-weight:700}
+.path li::after{content:"";position:absolute;left:17px;top:38px;bottom:2px;width:2px;background:var(--line)}
+.path li:last-child::after{display:none}
+.path li:last-child{padding-bottom:0}
+.path b{font-family:var(--display);font-size:1.1rem}
+.path span{display:block;color:var(--muted);font-size:.93rem}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin:6px 0 4px}
+.flow .node{flex:1 1 150px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:.9rem}
+.flow .node b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:2px}
+.flow .node.hot{border-color:var(--ink);box-shadow:4px 4px 0 var(--tape)}
+.flow .arr{align-self:center;color:var(--muted);font-family:var(--mono)}
+
+/* concept explorer */
+.explore{display:grid;grid-template-columns:230px 1fr;gap:18px;align-items:start}
+.explore>*{min-width:0}
+.tabs{display:grid;gap:6px}
+.tab{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-weight:500;color:var(--ink)}
+.tab small{display:block;color:var(--muted);font-weight:400;font-size:.78rem}
+.tab:hover{background:var(--blue-soft)}
+.tab[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab[aria-selected="true"] small{color:#C9D3E8}
+.cp-panel h3{font-size:1.5rem;margin-bottom:8px}
+.say{border-left:4px solid var(--tape);background:var(--tape-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.say b{font-size:.76rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;display:block;color:#7A5B00}
+.rem{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.rem li{padding-left:26px;position:relative}
+.rem li::before{content:"";position:absolute;left:4px;top:.55em;width:10px;height:10px;border-radius:2px;background:var(--blue)}
+
+/* traceback */
+.tb{background:var(--code-bg);border:1px solid var(--line);border-radius:10px;padding:8px;display:grid;gap:4px}
+.tbl{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center;text-align:left;border:1px solid transparent;border-radius:8px;background:transparent;padding:7px 8px;color:var(--ink);width:100%}
+.tbl:hover{background:var(--surface)}
+.tbl[aria-pressed="true"]{background:var(--surface);border-color:var(--ink);box-shadow:3px 3px 0 var(--tape)}
+.tbl .bd{width:26px;height:26px;border-radius:50%;background:var(--line);color:var(--muted);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:.85rem}
+.tbl[aria-pressed="true"] .bd{background:var(--ink);color:#fff}
+.tbl code{white-space:pre-wrap;word-break:break-word;background:none;padding:0;font-size:.82rem}
+.tbn{min-height:92px;margin-top:12px}
+
+/* tables */
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--ink);color:#fff;font-weight:600;font-size:.82rem;letter-spacing:.03em}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:600}
+
+/* grounding demo */
+.note-box{background:var(--tape-soft);border:1px dashed #C9A200;border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:.9rem}
+.note-box mark{background:var(--tape);padding:0 2px;border-radius:2px}
+input[type=text],textarea{width:100%;font:inherit;font-family:var(--mono);font-size:.9rem;border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--surface);color:var(--ink)}
+textarea{font-family:var(--body);min-height:96px;resize:vertical}
+.verdict{display:inline-block;font-family:var(--mono);font-weight:500;padding:5px 12px;border-radius:6px;margin-top:10px}
+.verdict.t{background:var(--ok-soft);color:var(--ok)}.verdict.f{background:var(--bad-soft);color:var(--bad)}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+.rules>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;font-size:.9rem;min-width:0}
+.rules b{display:block;font-family:var(--display);margin-bottom:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--ink);border-radius:10px;overflow:hidden;background:var(--surface)}
+.split>div{padding:16px 18px;min-width:0}
+.split>div+div{border-left:2px dashed var(--ink);background:var(--tape-soft)}
+.split b{font-family:var(--display);font-size:1.15rem;display:block;margin-bottom:4px}
+
+/* quiz */
+.q{margin-bottom:16px}
+.q .qh{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.q .qt{font-weight:600;margin-bottom:10px}
+.opts{display:grid;gap:8px;margin:12px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;background:var(--surface)}
+.opt:hover{background:var(--blue-soft)}
+.opt input{margin-top:.3em;width:17px;height:17px;accent-color:var(--blue);flex:none}
+.opt span{min-width:0;overflow-wrap:anywhere}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fb{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:.93rem}
+.fb.good{background:var(--ok-soft);color:#0E5C3D}.fb.bad{background:var(--bad-soft);color:#8A2626}
+.score{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));background:var(--ink);color:#fff;border-radius:99px;padding:8px 18px;font-weight:600;width:max-content;max-width:100%;margin:10px auto 0;font-size:.92rem}
+
+/* practice */
+.task{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:10px;overflow:hidden}
+.task summary{cursor:pointer;padding:12px 16px;display:flex;gap:12px;align-items:baseline;font-weight:500;list-style:none}
+.task summary::-webkit-details-marker{display:none}
+.task summary .tool{margin-left:auto;font-family:var(--mono);font-size:.74rem;color:var(--muted);white-space:nowrap}
+.task summary .no{font-family:var(--display);font-weight:800;color:var(--blue)}
+.task[open] summary{background:var(--blue-soft)}
+.task .ans{padding:14px 16px;border-top:1px solid var(--line)}
+.task .ans .code{margin-bottom:10px}
+
+footer{margin-top:56px;padding:26px;background:var(--ink);color:#fff;border-radius:14px;display:grid;gap:8px}
+footer h2{color:#fff}
+footer p{color:#C9D3E8;margin:0}
+
+@media (max-width:820px){
+  .hero{grid-template-columns:1fr;padding-top:36px}
+  .label-card{justify-self:start;transform:none}
+  .desk,.two,.explore{grid-template-columns:1fr}
+  .three{grid-template-columns:1fr}
+  .rules{grid-template-columns:1fr 1fr}
+  .tabs{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+}
+@media (max-width:520px){
+  .rules{grid-template-columns:1fr}
+  .split{grid-template-columns:1fr}
+  .split>div+div{border-left:0;border-top:2px dashed var(--ink)}
+  .cc{grid-template-columns:54px 1fr}
+  .cc .tag{grid-column:1 / -1;justify-self:start}
+  .task summary{flex-wrap:wrap}.task summary .tool{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* ===== Class 2 additions ===== */
+.muted{color:var(--muted)}.small{font-size:.9rem}
+.label-card .late.good{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+.lab{font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+.fld{display:grid;gap:4px;font-size:.92rem;font-weight:600}
+input[type=date]{font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);max-width:100%}
+.chiprow{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-family:var(--mono);font-size:.85rem;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.chip:hover{background:var(--blue-soft)}
+.chip[aria-pressed="true"],.chip.sel{background:var(--ink);color:#fff;border-color:var(--ink)}
+.code pre.out{min-height:130px;white-space:pre-wrap;word-break:break-word}
+.code pre .g{color:var(--ok);font-weight:500}.code pre .d{color:var(--cmt)}.code pre .e{color:var(--bad)}
+.stack{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-content:start;min-width:0}
+.callout{border-left:4px solid var(--blue);background:var(--blue-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+.callout b{font-size:.76rem;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;display:block;color:var(--blue)}
+.callout.warn{border-left-color:var(--tape);background:var(--tape-soft)}.callout.warn b{color:#7A5B00}
+
+/* repo viewer */
+.flist{display:grid;gap:4px;max-height:480px;overflow:auto;padding-right:4px}
+.flist .grp{font-family:var(--mono);font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:10px 4px 2px}
+.flist button{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-family:var(--mono);font-size:.84rem;color:var(--ink);overflow-wrap:anywhere}
+.flist button:hover{background:var(--blue-soft)}
+.flist button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.fname{font-family:var(--mono);font-weight:500;font-size:1.05rem;margin:0 0 4px;overflow-wrap:anywhere}
+.fnote{color:var(--muted);font-size:.93rem;margin:0 0 10px}
+.code.tall pre{max-height:440px;overflow:auto}
+
+/* layers */
+.layers{display:grid;gap:8px;margin:10px 0 0}
+.layers div{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--surface)}
+.layers b{font-family:var(--display);display:block}
+.layers .l1{border-color:var(--ok);background:var(--ok-soft)}.layers .l2{border-color:var(--tape);background:var(--tape-soft)}.layers .l3{border-color:var(--blue);background:var(--blue-soft)}
+
+/* order game */
+.order .ans{min-height:48px;border:1px dashed var(--line);border-radius:10px;padding:8px;background:var(--surface);margin:10px 0}
+.order .ans div{font-family:var(--mono);font-size:.84rem;padding:4px 8px;margin:3px 0;border-radius:6px;background:var(--ok-soft);border:1px solid var(--ok);overflow-wrap:anywhere}
+.order .chiprow{flex-direction:column;align-items:stretch}
+.order .chip{text-align:left;border-radius:8px;overflow-wrap:anywhere}
+.hint{min-height:24px;font-size:.93rem;margin:6px 0}.hint.good{color:var(--ok)}.hint.bad{color:var(--bad)}
+
+/* sorter */
+.sorter{margin:12px 0 26px}
+.sorter .pool{display:flex;gap:8px;flex-wrap:wrap;min-height:46px;padding:10px;border:1px dashed var(--line);border-radius:10px;background:var(--surface)}
+.sorter .pool .empty{color:var(--ok);font-weight:600}
+.sorter .bins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+.sorter .bins.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:680px){.sorter .bins{grid-template-columns:1fr 1fr}}
+@media (max-width:420px){.sorter .bins,.sorter .bins.two{grid-template-columns:1fr}}
+.sorter .bin{text-align:left;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);color:var(--ink);min-height:84px}
+.sorter .bin:hover{border-color:var(--blue)}
+.sorter .bin b{display:block;font-family:var(--display);font-size:1.02rem}
+.sorter .bin .why{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.sorter .bin .placed{display:flex;flex-wrap:wrap;gap:4px}
+.sorter .bin .placed span{font-family:var(--mono);font-size:.76rem;background:var(--ok-soft);border:1px solid var(--ok);color:var(--ok);border-radius:6px;padding:0 6px}
+.sorter .bin.flash{border-color:var(--bad);background:var(--bad-soft)}
+
+/* terminals */
+.tasks{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px}
+.tasks li{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.tasks li .ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;flex:none}
+.tasks li .tx{min-width:0;overflow-wrap:anywhere}
+.tasks li code,.chk li code{white-space:normal;overflow-wrap:anywhere}
+.tasks li.done{background:var(--ok-soft);border-color:var(--ok)}
+.tasks li.done .ck{background:var(--ok);border-color:var(--ok);color:#fff}
+.term{background:#16233B;color:#EAF0FB;border-radius:12px;overflow:hidden;margin:14px 0;border:1px solid #2A3A5C;font-family:var(--mono);font-size:.88rem}
+.term .bar2{background:#1F3150;padding:6px 12px;font-size:.75rem;color:#AEBBD6;display:flex;gap:6px;align-items:center}
+.term .dot{width:10px;height:10px;border-radius:50%;background:#ff6b6b}.term .dot:nth-child(2){background:#ffd166}.term .dot:nth-child(3){background:#6fe3a1}
+.term .screen{padding:12px 14px;height:280px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;scrollbar-width:thin}
+.term .line{margin:0}
+.term .p{color:#6fe3a1}.term .err{color:#ff8f86}.term .dim{color:#9FB0CE}.term .dir{color:#F5C531;font-weight:600}.term .warnline{color:#F5C531}
+.term .inputrow{display:flex;flex-wrap:wrap;gap:8px;padding:8px 14px 12px;border-top:1px solid #2A3A5C;align-items:center}
+.term .inputrow .pr{color:#6fe3a1;word-break:break-all}
+.term input{flex:1 1 140px;background:transparent;border:none;outline:none;color:#fff;font:inherit;min-width:0;width:auto}
+.term:focus-within{border-color:var(--tape);box-shadow:0 0 0 2px rgba(245,197,49,.35)}
+.fstree{font-family:var(--mono);font-size:.84rem;line-height:1.7;max-height:220px;overflow:auto}
+
+/* troubleshooting */
+.filter{width:100%;font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);margin:0 0 12px}
+.task .ans p{margin:0;max-width:none}
+.chk{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.chk li{display:flex;gap:12px;align-items:flex-start;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer}
+.chk li .ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem;flex:none;margin-top:2px}
+.chk li .tx{min-width:0;overflow-wrap:anywhere}
+.chk li.done{background:var(--ok-soft);border-color:var(--ok)}
+.chk li.done .ck{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.sel2{border-color:var(--blue)}
+.fileviewer{display:grid;grid-template-columns:230px 1fr;gap:18px;align-items:start}
+.fileviewer>*{min-width:0}
+@media (max-width:820px){.fileviewer{grid-template-columns:1fr}.flist{max-height:210px}}
+</style>
+</head>
+<body>
+
+<div class="bar" id="bar"><div class="bar-in" id="chips">
+  <a href="#try">Replay</a><a href="#built">Big picture</a><a href="#repo">Files</a><a href="#notebook">Concepts</a><a href="#setup">Order</a><a href="#games">Sort</a><a href="#practice">Practice</a><a href="#errors">Troubleshoot</a><a href="#quiz">Quiz</a><a href="#cheat">Cheat sheet</a><a href="#reflect">Check</a>
+</div></div>
+<div class="prog"><i id="progfill"></i></div>
+
+<main class="wrap">
+
+<header class="hero" id="top">
+  <div>
+    <div class="eyebrow">FDE Module 2 · Class 9 · Post-Read</div>
+    <h1>Overlap it, <mark>key it</mark>, pace it</h1>
+    <p class="lede">In class you named the waits in a 5,000-row run, pulled the three sources together, tried a process pool and saw when it does not pay, learned just enough asyncio, wrote a keyed and bounded runner, ran the model calls together under a plan, handled timeouts and rate limits, and proved that the reports did not change. This page lets you replay it, practise it, and check what stuck. Every wait in it is simulated. Nothing here is graded.</p>
+    <div class="meta"><span class="pill">About 60 minutes</span><span class="pill">threads, asyncio, rate limits</span><span class="pill">Meridian Case Intake Workbench</span></div>
+  </div>
+  <div class="label-card" aria-hidden="true">
+    <div class="top"><span>MERIDIAN</span><span>BATCH · B-866DBBE0CA3E</span></div>
+    <div class="mid"><span>5,000 ROWS · 9.5 S → 3.4 S (SIMULATED WAITS)</span><b>8 IN FLIGHT · 80 STARTS / S</b><span>same calls, same cost, same reports</span></div>
+    <div class="late good">220 PASS · 1 EXPECTED GAP · MYPY CLEAN</div>
+    <div class="late good">REPORTS BYTE-IDENTICAL AT 1 AND 8 IN FLIGHT</div>
+    <div class="bars"></div>
+  </div>
+</header>
+
+<!-- ================= REPLAY ================= -->
+<section id="try">
+  <div class="kicker">Replay</div>
+  <h2>Which number does this show?</h2>
+  <p class="intro">Pick a situation. The desk shows what it looks like, which tool or check it shows up in, and what the class saw. Everything here was measured on the real project, with real runs. The waits and the provider limit are simulated, so read the ratios, not the seconds.</p>
+  <div class="desk">
+    <div class="panel">
+      <div class="lab" style="margin-top:0">Six situations</div>
+      <div class="chiprow" id="pgMistakes" style="flex-direction:column;align-items:stretch">
+        <button class="chip" data-k="slow" aria-pressed="true">A 5,000-row run that is mostly waiting</button>
+        <button class="chip" data-k="sources" aria-pressed="false">Pulling the three sources together</button>
+        <button class="chip" data-k="block" aria-pressed="false">A blocking call inside async code</button>
+        <button class="chip" data-k="mixup" aria-pressed="false">Answers beside the wrong case</button>
+        <button class="chip" data-k="rate" aria-pressed="false">A provider that says 429</button>
+        <button class="chip" data-k="same" aria-pressed="false">Faster, with the same reports</button>
+      </div>
+      <div class="tally" id="pgTally" style="font-size:.92rem;font-weight:500;color:var(--muted)"></div>
+    </div>
+    <div class="stack">
+      <div class="lab" style="margin-top:0">What happens</div>
+      <div class="code"><pre id="pgCode"></pre></div>
+      <div class="lab" style="margin-top:4px">What the class saw</div>
+      <div class="code"><pre class="out" id="pgOut" aria-live="polite"></pre></div>
+    </div>
+  </div>
+  <div class="say"><b>What to notice</b>Every situation ends in a number or a check you can read back, not a feeling. A claim about speed is verified by a measurement, and a claim about correctness is verified by comparing files.</div>
+</section>
+
+<!-- ================= BUILT ================= -->
+<section id="built">
+  <div class="kicker">The big picture</div>
+  <h2>What you built today</h2>
+  <p class="intro">You started class with a program that was correct, small and capped, but did everything one step at a time. You finished with sources pulled together, model calls running together under a plan, every answer kept under its own case, and a pace that keeps a provider happy. The reports did not change by a single byte.</p>
+  <div class="flow">
+    <div class="node"><b>Correct, one step at a time</b>Streaming and capped, but 14 seconds for 5,000 rows (Class 8)</div><span class="arr">→</span>
+    <div class="node hot"><b>Name the wait, then overlap it</b>threads and asyncio for waits; a process pool only for real computing</div><span class="arr">→</span>
+    <div class="node"><b>Keyed, bounded, paced</b>every answer under its case_id, 8 in flight, 80 starts per second</div>
+  </div>
+
+  <div class="scroll" style="margin-top:22px"><table>
+    <tr><th>Question</th><th>Before (Class 8)</th><th>After (Class 9)</th></tr>
+    <tr><td>How are the three sources pulled?</td><td>One after another</td><td>Together, under a timeout, each outcome kept under its source name. <code>workers = 1</code> is the fallback</td></tr>
+    <tr><td>How are model calls run?</td><td>One at a time</td><td>Up to 8 in flight, at most 80 starts per second</td></tr>
+    <tr><td>5,000 rows, no call cap (315 calls)</td><td>14.25 seconds</td><td>4.99 seconds paced. 2.47 seconds without a pace, which is over the provider limit</td></tr>
+    <tr><td>5,000 rows, default controls (200 calls)</td><td>9.47 seconds</td><td>3.41 seconds, with the same 149 usable suggestions</td></tr>
+    <tr><td>20,000 rows, Friday size (1,258 calls, no cap)</td><td>53.96 seconds</td><td>18.7 seconds. Cost 0.481981 USD both ways</td></tr>
+    <tr><td>Who decides skip, cache and cap?</td><td>Each call, as it runs</td><td>A plan step, one case at a time in case order, before any call</td></tr>
+    <tr><td>What happens when a call fails or is too slow?</td><td>A status on its case</td><td>The same, and a timeout, a rate limit and a cancel are statuses too, each under its own case_id</td></tr>
+    <tr><td>Can an answer end up beside the wrong case?</td><td>Not possible with one call at a time</td><td>Checked: <code>verify_alignment</code> after every batch, and a case_id check where an answer is attached</td></tr>
+    <tr><td>How many checks protect it?</td><td>187 passed and 1 expected failure, mypy on 63 files (starter)</td><td>220 passed and 1 expected failure, mypy on 69 files</td></tr>
+  </table></div>
+
+  <div class="panel" style="margin-top:22px">
+    <h3 style="margin-bottom:16px">How the class climbed, in order</h3>
+    <ol class="path">
+      <li><b>Take the before picture</b><span>5,000 rows one by one: 14.25 seconds, 315 model calls, 235 usable suggestions. The three fingerprints recorded.</span></li>
+      <li><b>Name the wait</b><span>About 13.5 of those 14.25 seconds are waiting. The rest is the Workbench&rsquo;s own work.</span></li>
+      <li><b>Pull the three sources together</b><span>It saves about 0.6 seconds. On local files, threads gave no gain at all.</span></li>
+      <li><b>Try a process pool</b><span>Slower for tiny jobs (0.007 against 0.043 seconds), about twice as fast at 100,000 rounds. Left out of the pipeline.</span></li>
+      <li><b>Learn just enough asyncio</b><span>Five waits: 1.00 second one after another, 0.20 with gather. One blocking call undoes it.</span></li>
+      <li><b>Write a keyed, bounded runner</b><span><code>run_bounded</code> returns one outcome per key: OK, FAILED, TIMEOUT or CANCELLED.</span></li>
+      <li><b>Plan first, then run</b><span>The plan decides skip, cache and cap in case order. Only the cases that need a call wait. Then <code>verify_alignment</code>.</span></li>
+      <li><b>Handle timeouts and 429s, then add a pace</b><span>16 in flight with no pace drew 77 429s. With an 80-per-second gate, none.</span></li>
+      <li><b>Prove nothing else changed</b><span>The reports are byte for byte the same at 1 and at 8 in flight, and the fingerprints are unchanged.</span></li>
+    </ol>
+  </div>
+  <div class="say" style="margin-top:22px"><b>The sentence to remember</b>Name the wait first. Overlap only what waits, keep every answer under its own key, and prove with identical files that nothing was lost or misplaced.</div>
+</section>
+
+<!-- ================= REPO ================= -->
+<section id="repo">
+  <div class="kicker">Reference</div>
+  <h2>The files that changed</h2>
+  <p class="intro">Click a file to see the lines that matter most for Class 9. These are the lines the lesson turns on, not the whole file. The complete files are in the Final directory from your instructor.</p>
+  <div class="fileviewer">
+    <div class="flist" id="flist" role="list" aria-label="Files in the repository"></div>
+    <div class="panel">
+      <p class="fname" id="fname"></p>
+      <p class="fnote" id="fnote"></p>
+      <div class="code"><pre id="fcode"></pre></div>
+    </div>
+  </div>
+  <div class="callout warn" style="margin-top:18px"><b>Not in Git</b><code>.venv/</code>, <code>.env</code>, <code>.streamlit/secrets.toml</code>, <code>scratch/</code>, <code>outputs/</code>, and the <code>.mypy_cache/</code>, <code>.pytest_cache/</code>, <code>.ruff_cache/</code> and <code>.hypothesis/</code> folders stay out of the repository.</div>
+</section>
+
+<!-- ================= CONCEPTS ================= -->
+<section id="notebook">
+  <div class="kicker">Reference</div>
+  <h2>The concept notebook</h2>
+  <p class="intro">Pick a topic. Each one gives the idea in plain words, the code or output from class, and what to remember.</p>
+  <div class="explore">
+    <div class="tabs" id="tabs" role="tablist" aria-label="Concepts"></div>
+    <div class="panel cp-panel" id="cpanel" role="tabpanel"></div>
+  </div>
+</section>
+
+<!-- ================= SETUP ORDER ================= -->
+<section id="setup">
+  <div class="kicker">Rebuild it</div>
+  <h2>From one step at a time to together, step by step</h2>
+  <p class="intro">Each step depends on the one before it. Click the steps in the order you would do this work yourself, first to last.</p>
+  <div class="panel order">
+    <div class="ans" id="ordAns" aria-live="polite"></div>
+    <p class="hint" id="ordHint"></p>
+    <div class="chiprow" id="ordPool"></div>
+    <div class="ctl" style="margin:12px 0 0"><button class="btn ghost" id="ordReset">Shuffle and start over</button></div>
+  </div>
+  <div class="say"><b>Why this order?</b>You cannot overlap what you have not named, and you cannot trust a speed-up you did not measure against a recorded before picture. The runner that keeps answers under their keys comes before the plan, because the plan hands its calls to that runner. The pace comes after the failures, because a 429 is one of the failures you must be able to see first. The byte-for-byte proof comes last, because it needs every other piece in place.</div>
+</section>
+
+<!-- ================= SORT IT ================= -->
+<section id="games">
+  <div class="kicker">Sort it</div>
+  <h2>What kind is it?</h2>
+  <p class="intro">Two quick sorting games. Click an item, then click the bin where it belongs.</p>
+  <h3>Thread pool, process pool or asyncio?</h3>
+  <div class="sorter" id="sortWhen"></div>
+  <div class="say"><b>The rule that decides it</b>If the time goes to waiting, overlap the waits with threads (blocking code) or asyncio (code written with await). If the time goes to computing, only more processes help, and only when each item carries a lot of work. If you have not measured, measure first.</div>
+  <h3 style="margin-top:26px">Semaphore, or rate gate?</h3>
+  <div class="sorter" id="sortGit"></div>
+</section>
+
+<!-- ================= PRACTICE ================= -->
+<section id="practice">
+  <div class="kicker">Practice</div>
+  <h2>The take-home sheet</h2>
+  <p class="intro">Seven short tasks. Try each one in your own repository first, then open the answer to compare. <strong>Task 5 is the most useful</strong>: it lets you see a provider refuse calls, and watch a gate stop it. The small demonstration files named in the tasks are the ones from class; ask your instructor if you do not have them.</p>
+  <div id="tasks"></div>
+</section>
+
+<!-- ================= ERRORS ================= -->
+<section id="errors">
+  <div class="kicker">When it breaks</div>
+  <h2>Read the last line first</h2>
+  <p class="intro">Look for your message below. Type a word from it, such as <code>simulated</code>, <code>429</code> or <code>Futures</code>, to filter the list.</p>
+  <input class="filter" id="trFilter" placeholder="Filter, for example: 429, Futures, spawn" aria-label="Filter the troubleshooting list">
+  <div class="scroll"><table id="trTable"><thead><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr></thead><tbody></tbody></table></div>
+  <p class="muted" id="trNone" style="display:none;margin-top:10px">Nothing matches. Try a shorter word, or ask your instructor and include the last line of your error.</p>
+  <h3 style="margin:30px 0 10px">Questions beginners ask</h3>
+  <div id="faq"></div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section id="quiz">
+  <div class="kicker">Check yourself</div>
+  <h2>Six quick questions</h2>
+  <p class="intro">One right answer each. Pick an answer, and read the reason straight away.</p>
+  <div id="quizBox"></div>
+  <div class="score" id="score" aria-live="polite">Score: 0 of 6</div>
+</section>
+
+<!-- ================= CHEAT ================= -->
+<section id="cheat">
+  <div class="kicker">Keep this</div>
+  <h2>Cheat sheet</h2>
+  <p class="intro">You do not need to memorise any of it. You need to recognise it and know what question it answers.</p>
+  <h3 style="margin:22px 0 10px">Choosing the tool</h3>
+  <div class="scroll">
+  <table>
+    <tr><th>Where does the time go?</th><th>Tool</th><th>Note</th></tr>
+    <tr><td>Waiting, with blocking code</td><td><code>ThreadPoolExecutor</code></td><td>A timeout stops the waiting, not the thread. Eight waits of 0.2 s: 1.60 s became 0.40 s on four threads</td></tr>
+    <tr><td>Waiting, with <code>async def</code></td><td><code>asyncio.gather</code>, <code>asyncio.timeout</code>, <code>Semaphore</code></td><td>Never block inside a coroutine: five blocking sleeps took 1.00 s, not 0.20 s</td></tr>
+    <tr><td>Computing, with large work per item</td><td><code>ProcessPoolExecutor</code></td><td>Start-up and pickling cost: 0.043 s against 0.007 s for tiny jobs, 3.515 s against 6.861 s at 100,000 rounds</td></tr>
+    <tr><td>Computing, small items, or local files</td><td>One process</td><td>Threads took 0.31 s on local files either way</td></tr>
+  </table>
+  </div>
+  <h3 style="margin:22px 0 10px">Keeping the mapping</h3>
+  <div class="scroll">
+  <table>
+    <tr><th>Instead of</th><th>Use</th><th>Why</th></tr>
+    <tr><td>Pairing results with cases by position, in finish order</td><td>A keyed outcome (<code>PullOutcome</code>, <code>JobOutcome</code>)</td><td>18 of 20 answers sat beside the wrong case in the demonstration</td></tr>
+    <tr><td><code>asyncio.gather</code> when one failure must not hide the rest</td><td><code>run_bounded</code></td><td>One outcome per key: OK, FAILED, TIMEOUT or CANCELLED</td></tr>
+    <tr><td>Deciding the cap inside each call</td><td>A plan step in case order</td><td>The cap goes to the same cases on every run</td></tr>
+    <tr><td>Trusting that nothing was mixed up</td><td><code>verify_alignment</code>, and identical report hashes</td><td>A mix-up does not crash anything</td></tr>
+  </table>
+  </div>
+  <h3 style="margin:22px 0 10px">The two limits</h3>
+  <div class="scroll">
+  <table>
+    <tr><th>Setting</th><th>What it bounds</th><th>Class value</th></tr>
+    <tr><td><code>max_concurrency</code></td><td>Calls in flight (a semaphore)</td><td>8. The fallback is 1</td></tr>
+    <tr><td><code>requests_per_second</code></td><td>Calls started per second (a gate)</td><td>80, under the provider&rsquo;s 100. 0 switches it off</td></tr>
+    <tr><td><code>[sources] workers</code></td><td>How many source pulls run together</td><td>3. The fallback is 1</td></tr>
+    <tr><td>Little&rsquo;s law</td><td>In flight is about starts per second times seconds per call</td><td>8 in flight at 0.04 s starts about 200 per second</td></tr>
+  </table>
+  </div>
+  <h3 style="margin:22px 0 10px">Commands</h3>
+  <div class="scroll">
+  <table>
+    <tr><th>Task</th><th>Command</th></tr>
+    <tr><td>Build the export</td><td><code>python -m meridian_workbench.make_export --rows 5000 --out scratch/export5k</code></td></tr>
+    <tr><td>One by one (Class 8 behaviour)</td><td><code>python -m meridian_workbench.bench --data scratch/export5k --mode live --latency --workers 1 --concurrency 1</code></td></tr>
+    <tr><td>Together, with a pace</td><td><code>... --workers 3 --concurrency 8 --rps 80</code></td></tr>
+    <tr><td>Keep a run for comparing</td><td><code>... --out scratch/out_together</code></td></tr>
+    <tr><td>Run just the new tests</td><td><code>python -m pytest tests/test_concurrency.py tests/test_async_ai.py -v</code></td></tr>
+    <tr><td>Take or compare the proof</td><td><code>python scratch/prove.py</code></td></tr>
+  </table>
+  </div>
+  <div class="say"><b>The rule of the class</b>Name the wait, then measure, then change. A faster run is only a better one if the reports are the same, every failure is still visible, and the provider never has to say no.</div>
+</section>
+
+<!-- ================= REFLECT ================= -->
+<section id="reflect">
+  <div class="kicker">Close the loop</div>
+  <h2>Is your repository ready?</h2>
+  <p class="intro">Tick each item only when it is true. If any item is not, fix it before the next class. Your ticks are saved in this browser only.</p>
+  <div class="row two">
+    <div>
+      <ul class="chk" id="finalChecks">
+        <li data-check="1"><span class="ck"></span><span class="tx"><code>pytest</code> reports <code>220 passed, 1 xfailed</code></span></li>
+        <li data-check="2"><span class="ck"></span><span class="tx"><code>mypy</code> says <code>Success: no issues found in 69 source files</code></span></li>
+        <li data-check="3"><span class="ck"></span><span class="tx"><code>ruff check .</code> says <code>All checks passed!</code></span></li>
+        <li data-check="4"><span class="ck"></span><span class="tx"><code>python scratch/prove.py</code> ends with <code>fingerprints: SAME as before</code></span></li>
+        <li data-check="5"><span class="ck"></span><span class="tx">A live run with <code>--workers 3 --concurrency 8 --rps 80</code> is clearly faster than one with <code>--workers 1 --concurrency 1</code></span></li>
+        <li data-check="6"><span class="ck"></span><span class="tx">Two runs saved with <code>--out</code> give identical report hashes</span></li>
+        <li data-check="7"><span class="ck"></span><span class="tx">I can explain why a semaphore does not keep a run under a rate limit</span></li>
+        <li data-check="8"><span class="ck"></span><span class="tx">I can say what the fallback is: <code>max_concurrency = 1</code> and <code>workers = 1</code></span></li>
+        <li data-check="9"><span class="ck"></span><span class="tx">I tried the games and answered the quiz</span></li>
+      </ul>
+    </div>
+    <div style="min-width:0">
+      <div class="panel">
+        <h3 style="margin:0 0 8px">Today's numbers</h3>
+        <p class="small muted" style="margin:0 0 10px">What the finished project reports, with simulated waits. If yours differs in shape, find out why before moving on.</p>
+        <div class="scroll"><table>
+          <tr><th>Check</th><th>Result</th></tr>
+          <tr><td>Tests</td><td>220 passed, 1 expected failure (187 before)</td></tr>
+          <tr><td>mypy</td><td>no issues in 69 source files (63 before)</td></tr>
+          <tr><td>5,000 rows, no cap, one by one</td><td>14.25 s, 315 calls, 235 usable, cost 0.120449</td></tr>
+          <tr><td>The same, 8 in flight, 80 per second</td><td>4.99 s, the same calls and cost</td></tr>
+          <tr><td>The same, 8 in flight, no pace</td><td>2.47 s, but over the provider limit (20 to 36 429s)</td></tr>
+          <tr><td>The gate's floor on 315 calls</td><td>315 / 80 = 3.9 s, plus about 1 s of other work</td></tr>
+          <tr><td>5,000 rows, default controls</td><td>9.47 s one by one, 3.41 s together, 200 calls, 149 usable</td></tr>
+          <tr><td>20,000 rows, no cap, one by one</td><td>53.96 s, 1,258 calls, 943 usable, cost 0.481981</td></tr>
+          <tr><td>The same, together</td><td>18.7 s, same calls, same cost, identical reports</td></tr>
+          <tr><td>Cost per usable suggestion, 20,000 rows</td><td>0.00051111, the same both ways</td></tr>
+        </table></div>
+        <p class="small muted" style="margin:10px 0 0">Every wait is simulated. Prices are a dated assumption in <code>config/prices.toml</code>, and the provider limit is a classroom number in <code>config/limits.toml</code>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="say" style="margin-top:22px"><b>Exit ticket, in your own words</b>How do you tell a waiting job from a computing one? Why does a timeout on a thread not stop the thread? What goes wrong when results are paired with cases by position? What is the difference between a semaphore and a rate limit, and why do you need both? What is the fallback, and how do you know a faster run changed nothing?</div>
+</section>
+
+<footer>
+  <h2>Next up: build on a fast, honest foundation</h2>
+  <p>You now have a project that is proven correct, measured, bounded and, where it waits, concurrent: you know what it saves in time, what it costs in complexity, and how it fails. Keep your repository passing all its checks, because the next class builds on it. Your instructor will share what comes next.</p>
+</footer>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function setText(el, t) { if (el) el.textContent = t; }
+
+  /* ---------- progress bar and chapter highlight ---------- */
+  try {
+    var fill = $('#progfill'), chapLinks = $$('#chips a');
+    var secs = chapLinks.map(function (a) { return $(a.getAttribute('href')); }).filter(Boolean);
+    window.addEventListener('scroll', function () {
+      var h = document.documentElement;
+      var max = (h.scrollHeight - h.clientHeight) || 1;
+      if (fill) fill.style.width = Math.min(100, Math.round(h.scrollTop / max * 100)) + '%';
+      var cur = -1;
+      secs.forEach(function (s, i) { if (s.getBoundingClientRect().top < 140) cur = i; });
+      chapLinks.forEach(function (a, i) { a.classList.toggle('on', i === cur); });
+    }, { passive: true });
+  } catch (e) { /* ignore */ }
+
+  /* ---------- replay desk: which number does this show ---------- */
+  var SCEN = {
+  "slow": {
+    "code": "python -m meridian_workbench.bench --data scratch/export5k --mode live --latency --workers 1 --concurrency 1   # 5,000 rows, no call cap",
+    "caught": "bench.py, and the time split it prints: the model calls and the source pulls wait on a (simulated) clock",
+    "when": "Before any change. It is the recorded before picture that every later number is compared with.",
+    "out": "One by one: 14.25 s, 315 calls, 78 skipped as too short, 235 usable suggestions\nTokens 55,434 in and 13,003 out, cost 0.120449 USD, 0.00051255 per usable suggestion\nMedians of several runs: one by one 14.26 s, sources only 13.65 s\n8 in flight, no pace: 2.47 s.  8 in flight at 80 per second: 4.99 s.  Native asyncio: 4.95 s.",
+    "why": "Most of the 14 seconds is waiting, not working. Waiting can be overlapped, and nothing else about the run has to change. The sources take 0.95 s of simulated waiting, so the model calls are the part worth changing."
+  },
+  "sources": {
+    "code": "python scratch/s3a_lookups.py     # three sources pulled one after another, then together",
+    "caught": "pull_threaded in sources.py, and the PullOutcome kept under each source name",
+    "when": "Whenever the sources wait on a network. Not when they are local files.",
+    "out": "Real local files:   one by one 0.31 s,  together 0.31 s   (no gain)\nSimulated pulls:    one by one 1.32 s,  together 0.59 s\nReported order of completion: inventory, notes, shipments (not the order we asked in)",
+    "why": "Threads help when the thing they do is wait. Local files barely wait, so there was nothing to overlap. The outcomes are keyed by source name because the order of finishing is not the order of asking."
+  },
+  "block": {
+    "code": "python scratch/s5_async.py     # five waits of 0.20 s each",
+    "caught": "A timing check around the demo. The tests in test_concurrency.py hold the same rule",
+    "when": "Whenever one await is replaced by an ordinary blocking call such as time.sleep.",
+    "out": "five awaits, one after another  1.00 s\nfive at once with gather        0.20 s\ngather, but each one BLOCKS     1.00 s\nSemaphore(2) over six tasks     0.60 s, at most 2 in flight at once",
+    "why": "One event loop runs every task. A blocking call stops the loop, so none of the others can move. The program still gives the right answers, only slowly, which is why only a measurement shows it."
+  },
+  "mixup": {
+    "code": "python scratch/s6_naive_zip.py     # twenty answers, paired with cases by position, in finish order",
+    "caught": "verify_alignment in async_ai.py, which raises ReconciliationError. Nothing else would notice",
+    "when": "As soon as answers come back in any order other than the order you asked in.",
+    "out": "naive as_completed + zip: 18 of 20 suggestions sit beside the wrong case\n  e.g. the row for C-1000 holds the suggestion for C-1001\nresults read in submit order: 0 of 20 wrong",
+    "why": "Nothing crashes, and every answer is a valid answer, only for the wrong case. Keep each result under its case_id from the start, and check the alignment after every batch."
+  },
+  "rate": {
+    "code": "python scratch/s8_rate.py     # a simulated provider that allows 100 call starts per second",
+    "caught": "The simulated provider counts its own 429s; the gateway counts what it retried and what it gave up on",
+    "when": "When calls start faster than the provider allows, which a semaphore alone cannot stop.",
+    "out": "in flight  starts/s gate  seconds  429s  usable  rate limited\n        1            off    13.31     0     235             0\n        8            off     3.64    20     235             0\n       16            off     3.76    77     231             6\n       16             80     4.62     0     235             0",
+    "why": "A semaphore limits how many calls are in flight. A rate limit counts how many start each second. Eight in flight at 0.04 s each start about 200 per second. A gate spaces the starts, and the run stays faster than one by one. The 429 counts vary from run to run; the pattern does not."
+  },
+  "same": {
+    "code": "python scratch/prove.py     # the same 5,000 rows at 1 in flight and at 8 in flight, default controls (cap 200, 3 words)",
+    "caught": "The three report hashes, compared file by file after each run",
+    "when": "After any change that is meant to change speed only.",
+    "out": "one by one 9.47 s, together 3.41 s  (a re-run gave 9.55 s and 3.43 s)\n200 calls, 78 skipped, 115 over the cap, 149 usable suggestions, cost 0.076487 USD\nattention 2d0ec51ba3a9, quarantine 818c2322a6b1, cost a7c2750d84dd: IDENTICAL\n20,000 rows, no cap: 53.96 s against 18.72 s, hashes IDENTICAL",
+    "why": "Faster is only better if the answer is the same. Identical files at 1 and at 8 in flight are the proof, and the fallback of 1 in flight and 1 worker is what keeps that proof repeatable."
+  }
+};
+  function showScen(k) {
+    var s = SCEN[k];
+    $$('#pgMistakes .chip').forEach(function (c) { c.setAttribute('aria-pressed', c.dataset.k === k ? 'true' : 'false'); });
+    setText($('#pgCode'), s.code);
+    setText($('#pgOut'), 'Caught by: ' + s.caught + '\nWhen: ' + s.when + '\n\n' + s.out + '\n\nWhy it matters: ' + s.why);
+    setText($('#pgTally'), 'Name the wait, measure, then change. Simulated waits: read the ratios, not the seconds.');
+  }
+  $$('#pgMistakes .chip').forEach(function (c) { c.addEventListener('click', function () { showScen(c.dataset.k); }); });
+  showScen('slow');
+
+  /* ---------- the files that changed ---------- */
+  var FILES = [
+  {
+    "n": "simulated.py",
+    "tag": "new",
+    "note": "Starter file. Stand-ins for slow things. Every wait is a named constant, so any number that depends on one can say where it came from.",
+    "code": "SIMULATED_PULL_SECONDS = {\"notes\": 0.30, \"shipments\": 0.40, \"inventory\": 0.25}   # SIMULATED\nSIMULATED_MODEL_SECONDS = 0.04                                                      # SIMULATED\n\ndef provider_limit(model):\n    # call starts per second, read from config/limits.toml\n    ..."
+  },
+  {
+    "n": "sources.py",
+    "tag": "new",
+    "note": "The three source pulls run together, each under its own name, under a timeout. A timeout stops the waiting, not the thread.",
+    "code": "@dataclass(frozen=True)\nclass PullOutcome:\n    \"\"\"What one pull gave back: a value or an error, never both, always with its name.\"\"\"\n\n    name: str\n    value: Any = None\n    error: Exception | None = None\n    seconds: float = 0.0\n\n    @property\n    def ok(self) -> bool:\n        return self.error is None\n\n    def get(self) -> Any:\n        \"\"\"The value, or the original error with its traceback.\"\"\"\n        if self.error is not None:\n            raise self.error\n        return self.value\n\ndef pull_threaded(\n    pulls: Mapping[str, Callable[[], Any]], *, max_workers: int, timeout: float | None = None\n) -> dict[str, PullOutcome]:\n    \"\"\"All pulls at once, on threads. The result has the caller's names in the caller's order.\n\n    `timeout` is the total time we are willing to wait. A pull that has not finished by then is\n    reported as a TimeoutError outcome. A thread cannot be stopped from outside, so that pull may\n    still be running; we stop waiting for it, we do not stop it.\n    \"\"\"\n    started = time.perf_counter()\n    pool = ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix=\"pull\")\n    futures = {pool.submit(_timed, name, pull): name for name, pull in pulls.items()}\n    finished: dict[str, PullOutcome] = {}\n    try:\n        for future in as_completed(futures, timeout=timeout):\n            finished[futures[future]] = future.result()\n    except FutureTimeout:\n        pass  # whatever is not in `finished` is reported below\n    finally:\n        pool.shutdown(wait=False, cancel_futures=True)  # do not wait for a pull that timed out\n    waited = time.perf_counter() - started\n    return {\n        name: finished.get(\n            name,\n            PullOutcome(\n                name, error=TimeoutError(f\"{name}: no answer in {timeout}s\"), seconds=waited\n            ),\n        )\n        for name in pulls\n    }"
+  },
+  {
+    "n": "aio.py",
+    "tag": "new",
+    "note": "JobOutcome, run_bounded (one outcome per key) and RateGate (spaces the starts of calls).",
+    "code": "@dataclass(frozen=True)\nclass JobOutcome(Generic[K, T]):\n    \"\"\"What one job gave back, under the key it was given. Never missing, never anonymous.\"\"\"\n\n    key: K\n    status: str  # OK, FAILED, TIMEOUT or CANCELLED\n    value: T | None = None\n    error: BaseException | None = None\n    seconds: float = 0.0\n\nclass RateGate:\n    \"\"\"Spaces out the START of calls: never more than `per_second` starts on average.\n\n    A semaphore limits how many calls are in flight. This limits how many calls begin. A\n    requests-per-minute limit is about the second thing, so a semaphore alone cannot keep you\n    under it. per_second = 0 switches the gate off.\n    \"\"\"\n\n    def __init__(self, per_second: float, clock: Callable[[], float] = time.monotonic) -> None:\n        self.interval = 1.0 / per_second if per_second > 0 else 0.0\n        self._clock = clock\n        self._next_start = 0.0\n\n    async def wait(self) -> None:\n        if not self.interval:\n            return\n        now = self._clock()\n        start = max(now, self._next_start)\n        self._next_start = start + self.interval  # no await between the read and this write\n        if start > now:\n            await asyncio.sleep(start - now)"
+  },
+  {
+    "n": "aio.py: run_bounded",
+    "tag": "new",
+    "note": "A semaphore bounds calls in flight; an overall deadline turns unfinished work into TIMEOUT or CANCELLED outcomes.",
+    "code": "async def run_bounded(\n    jobs: Mapping[K, Callable[[], Awaitable[T]]],\n    *,\n    limit: int,\n    job_timeout: float | None = None,\n    overall_timeout: float | None = None,\n) -> dict[K, JobOutcome[K, T]]:\n    \"\"\"Run every job, at most `limit` at a time, and return one outcome for every key.\n\n    - A job that raises is a FAILED outcome. It does not stop the others.\n    - A job that takes longer than `job_timeout` is a TIMEOUT outcome.\n    - When `overall_timeout` passes, jobs still running are cancelled and reported as CANCELLED.\n      Outcomes that were already finished are kept: that is a partial result, not a lost run.\n    The result has the same keys, in the same order, as `jobs`.\n    \"\"\"\n    if limit < 1:\n        raise ValueError(\"limit must be at least 1\")\n    if not jobs:\n        return {}  # asyncio.wait refuses an empty set: nothing to run is a normal case\n    gate = asyncio.Semaphore(limit)\n\n    async def one(key: K, make: Callable[[], Awaitable[T]]) -> JobOutcome[K, T]:\n        async with gate:  # waiting for a place is not counted in the job's own time\n            start = time.perf_counter()\n            try:\n                async with asyncio.timeout(job_timeout):\n                    value = await make()\n            except TimeoutError as error:\n                return JobOutcome(key, TIMEOUT, error=error, seconds=time.perf_counter() - start)\n            except Exception as error:  # CancelledError is not an Exception: it passes through\n                return JobOutcome(key, FAILED, error=error, seconds=time.perf_counter() - start)\n            return JobOutcome(key, OK, value=value, seconds=time.perf_counter() - start)\n\n    tasks = {key: asyncio.create_task(one(key, make)) for key, make in jobs.items()}\n    _, pending = await asyncio.wait(tasks.values(), timeout=overall_timeout)\n    for task in pending:\n        task.cancel()\n    if pending:\n        await asyncio.gather(*pending, return_exceptions=True)  # let the cancellations finish\n    return {\n        key: JobOutcome(key, CANCELLED, error=asyncio.CancelledError())\n        if task.cancelled()\n        else task.result()\n        for key, task in tasks.items()\n    }"
+  },
+  {
+    "n": "async_ai.py",
+    "tag": "new",
+    "note": "AsyncGateway makes one call (retrying a 429, then giving up as rate limited). The plan decides skip, cache and cap in case order before anything runs. Then the calls run together, and the answers are checked against their cases.",
+    "code": "def plan_request(\n    request: SuggestRequest, settings: Settings, cache: SuggestionCache, budget: CallBudget\n) -> CaseSuggestion | None:\n    \"\"\"Everything decided in plain Python, before any waiting. None means: this one needs a call.\n\n    The order is the Class 8 order: skip check, then cache, then the cap. It runs one request at a\n    time and never awaits, so the cap is shared out in the order of the cases, the same way\n    every run. Each request that needs a call takes one place from the cap here.\n    \"\"\"\n    case_id, note = request.case_id, request.note\n    reason = skip_reason(note, settings.min_note_words)\n    if reason:\n        meta = CallMetadata(\"skipped\", settings.model, settings.prompt_version, 0, 0, \"skipped\")\n        return _status(case_id, note, meta, SuggestionStatus.ABSTAINED, reason)\n    cached = cache.get(cache_key(note, settings))\n    if cached is not None:\n        meta = CallMetadata(\n            \"cached\",\n            settings.model,\n            settings.prompt_version,\n            0,\n            0,\n            \"cache\",\n            \"reused from an earlier successful run\",\n        )\n        return interpret_reply(cached, case_id, note, meta)\n    if not budget.take():\n        return _unavailable(case_id, note, settings, CAP_REACHED)\n    return None\n\ndef verify_alignment(requests: Sequence[SuggestRequest], answers: Sequence[Answer]) -> None:\n    \"\"\"Answer n must belong to request n: same case, same note. Nothing lost, nothing doubled.\"\"\"\n    if len(answers) != len(requests):\n        raise ReconciliationError(f\"{len(requests)} requests but {len(answers)} answers\")\n    for position, (request, answer) in enumerate(zip(requests, answers, strict=True)):\n        got = answer.suggestion\n        if got.case_id != request.case_id or got.source_note_id != request.note.note_id:\n            raise ReconciliationError(\n                f\"answer {position} is for {got.case_id}/{got.source_note_id}, \"\n                f\"but request {position} was {request.case_id}/{request.note.note_id}\"\n            )"
+  },
+  {
+    "n": "procs.py",
+    "tag": "new",
+    "note": "A process pool for work that computes. It starts slowly and has to pickle its arguments, so it only pays for large items. It is not used by the pipeline.",
+    "code": "Measured, the same job at three sizes:\n  rounds        one by one   4 threads   process pool\n  100               0.007      0.043        0.012\n  5,000             0.324      0.223        0.171\n  100,000           6.861      3.515        3.521\n\nstart-up, an empty job: in-process 0.000012 s, fork pool 0.004 s, spawn pool 0.039 s"
+  },
+  {
+    "n": "gateway.py",
+    "tag": "changed",
+    "note": "The trace and the log line of one call moved into record_trace, shared by the sync gateway and the async one, so a log reads the same either way.",
+    "code": "def record_trace(\n    settings: Settings,\n    logger: RunLogger | None,\n    prompt: str,\n    purpose: str,\n    attempts: int,\n    outcome: str,\n    reply: LlmReply | None,\n    latency_ms: int,\n) -> CallTrace:\n    \"\"\"Build the trace of one call and write its log line. Shared by the sync and async doors.\"\"\"\n    trace = CallTrace(\n    ..."
+  },
+  {
+    "n": "pipeline.py",
+    "tag": "changed",
+    "note": "A single switch: workers = 1 and max_concurrency = 1 behave as Class 8 did. Above 1, the sources and the model calls overlap.",
+    "code": "# workers = 1, max_concurrency = 1  -> the Class 8 path, unchanged\n# workers = 3                       -> the three sources are pulled together\n# max_concurrency = 8               -> plan first, run the calls together, verify_alignment"
+  },
+  {
+    "n": "config.py + settings.toml",
+    "tag": "changed",
+    "note": "Three new settings with safe defaults. Defaults reproduce Class 8; the project settings file turns the speed-up on.",
+    "code": "# config.py defaults\nsource_workers = 1\npull_timeout_seconds = 30.0\nmax_concurrency = 1\nrequests_per_second = 0.0          # 0 switches the gate off\n\n# config/settings.toml\n[ai]\nmax_concurrency = 8\nrequests_per_second = 80\n[sources]\nworkers = 3\npull_timeout_seconds = 30.0"
+  },
+  {
+    "n": "limits.toml",
+    "tag": "new",
+    "note": "Starter file. The simulated provider's limit, dated, so the number has a source.",
+    "code": "as_of = 2026-11-11\n[models.claude-haiku-5-5]\nrequests_per_second = 100   # a classroom number, not a real quote"
+  },
+  {
+    "n": "test_concurrency.py",
+    "tag": "new",
+    "note": "18 checks for pulls, the bounded runner, the rate gate and the process pool.",
+    "code": "test_run_bounded_with_nothing_to_run_returns_nothing\ntest_a_blocking_call_inside_a_coroutine_freezes_every_other_task\ntest_the_rate_gate_spaces_out_starts\n# ... and 15 more"
+  },
+  {
+    "n": "test_async_ai.py",
+    "tag": "new",
+    "note": "15 checks that concurrency changes speed and nothing else.",
+    "code": "test_every_answer_stays_with_its_own_case\ntest_the_cap_is_shared_out_in_case_order\ntest_a_semaphore_alone_cannot_keep_a_run_under_a_rate_limit\ntest_a_mixed_up_answer_is_caught_before_it_reaches_a_report\ntest_a_whole_batch_is_byte_identical_at_one_and_at_eight\n# ... and 10 more"
+  },
+  {
+    "n": "docs/concurrency.md",
+    "tag": "new",
+    "note": "A short guide to choosing threads, processes or asyncio, with the measured numbers and the fallback.",
+    "code": "Where does the time go?  Waiting  -> threads, or asyncio\n                         Computing -> processes, only for large items\nMeasure first. Keep results under keys. Pace the starts. Prove identical reports."
+  }
+];
+  var flist = $('#flist');
+  FILES.forEach(function (f, i) {
+    var b = document.createElement('button');
+    b.setAttribute('aria-pressed', 'false');
+    b.textContent = f.n + '  (' + f.tag + ')';
+    b.addEventListener('click', function () { showFile(i); });
+    flist.appendChild(b);
+  });
+  function showFile(i) {
+    var f = FILES[i];
+    $$('#flist button').forEach(function (x, j) { x.setAttribute('aria-pressed', j === i ? 'true' : 'false'); });
+    setText($('#fname'), f.n);
+    setText($('#fnote'), f.note);
+    setText($('#fcode'), f.code);
+  }
+  showFile(0);
+
+  /* ---------- concept notebook ---------- */
+  var TOPICS = [
+  {
+    "t": "I/O-bound and CPU-bound",
+    "s": "Where does the time go?",
+    "say": "A run is I/O-bound when most of its time is spent waiting, and CPU-bound when most of it is spent computing. The cure is different for each, so you find out which one you have before you change anything. Eight waits of 0.2 seconds took 1.60 seconds one by one and 0.40 on four threads. The same eight pieces of computing took 1.73 and 1.63.",
+    "code": "wait, one by one           1.60 s\nwait, four threads         0.40 s\ncpu, one by one            1.73 s\ncpu, four threads          1.63 s",
+    "rem": "Name the wait first. A tool is chosen after that, never before."
+  },
+  {
+    "t": "The GIL, in one idea",
+    "s": "A waiting thread lets go",
+    "say": "Python lets only one thread run Python code at a time. A thread that is waiting on a clock or a network lets go of that, so another thread can run. A thread that is computing never lets go. That is why threads speed up waiting and do nothing for computing.",
+    "code": "wait, four threads   0.40 s   (was 1.60 s)\ncpu,  four threads   1.63 s   (was 1.73 s)",
+    "rem": "Threads for waiting. Not for computing."
+  },
+  {
+    "t": "ThreadPoolExecutor",
+    "s": "submit, map and as_completed",
+    "say": "submit hands over one job and gives you a Future. map returns results in the order you submitted them. as_completed gives them in the order they finish. If the order matters to you, ask for it; do not assume it.",
+    "code": "with ThreadPoolExecutor(max_workers=3) as pool:\n    futures = {pool.submit(pull, name): name for name in names}\n    for fut in as_completed(futures):\n        name = futures[fut]        # the KEY comes from the dict\n        ...",
+    "rem": "The key comes from the dict, not from the position."
+  },
+  {
+    "t": "A timeout does not stop a thread",
+    "s": "It stops the waiting",
+    "say": "A timeout on a future stops you waiting for it. The thread carries on. In class the batch returned after 0.31 seconds with the slow note marked UNAVAILABLE, and the stray threads were still alive right then. A second later they were gone. The slow note had received three calls, one for each attempt.",
+    "code": "batch returned after 0.31 s\n  C-1000  OK           \n  C-1001  OK           \n  C-1002  UNAVAILABLE  model timed out after 3 attempts\n  C-1003  OK           \n  C-1004  OK           \n  C-1005  OK           \nthreads still alive right after the batch: 3\nthreads still alive one second later:     0\ncalls the slow note really received: 3 (one per attempt)",
+    "rem": "You can stop waiting. You cannot stop the work. Design for that."
+  },
+  {
+    "t": "ProcessPoolExecutor",
+    "s": "A real second interpreter, with a cost",
+    "say": "A process pool does run computing in parallel, because each process has its own interpreter. It pays a start-up cost, and every argument and result has to be pickled and sent across. For tiny jobs that cost is larger than the saving. For large jobs it pays: about twice as fast at 100,000 rounds. In the project, the per-case work is small, so the pool is left out.",
+    "code": " rounds per note  one process  2 procs, chunk 1  2 procs, chunk 50\n             100       0.007s            0.043s             0.012s\n           5,000       0.324s            0.223s             0.171s\n         100,000       6.861s            3.515s             3.521s\nsame answers, same order: True",
+    "rem": "Processes for large computing. Measure the size first."
+  },
+  {
+    "t": "fork and spawn",
+    "s": "How a worker process starts",
+    "say": "fork copies the running process, which is quick. spawn starts a fresh interpreter and imports your code again, which is slower, and the only choice on some systems. An empty job cost 0.000012 seconds in-process, 0.004 with a fork pool, and 0.039 with a spawn pool.",
+    "code": "the tiny job in this process:        0.000012 s\npool of 2 (fork), first answer back: 0.004 s\npool of 2 (spawn), first answer back: 0.039 s",
+    "rem": "Start-up is a price you pay for each pool, not for each job."
+  },
+  {
+    "t": "asyncio: await and the event loop",
+    "s": "One thread, many waiting tasks",
+    "say": "An async def function does not run when you call it; it gives you a coroutine. await runs it, and lets the loop run something else while this one waits. gather starts several together. Five waits of 0.2 seconds took 1.00 second awaited one by one and 0.20 with gather.",
+    "code": "1. calling an async def runs nothing yet: coroutine\n   awaiting it runs it: a\n2. five awaits, one after another  1.00 s  ['a', 'b', 'c', 'd', 'e']\n3. five at once with gather        0.20 s  ['a', 'b', 'c', 'd', 'e']\n4. gather, but each one BLOCKS     1.00 s  ['a', 'b', 'c', 'd', 'e']\n5. asyncio.timeout(0.1) raised TimeoutError after the wait was cut short\n6. six tasks, Semaphore(2)         0.60 s  ['a', 'b', 'c', 'd', 'e', 'f']\n   most in flight at once: 2",
+    "rem": "Await to wait. Never block inside a coroutine."
+  },
+  {
+    "t": "Blocking the loop",
+    "s": "One time.sleep freezes everything",
+    "say": "The loop can only switch tasks when a task awaits. A task that calls time.sleep, or any blocking call, holds the loop and every other task waits. The program stays correct and gets slow, and no error says why.",
+    "code": "await asyncio.sleep(0.2)   # lets other tasks run\ntime.sleep(0.2)            # freezes them all: 1.00 s, not 0.20 s",
+    "rem": "A blocking call inside async code is a bug that returns the right answer."
+  },
+  {
+    "t": "Semaphore: calls in flight",
+    "s": "A cap on how many at once",
+    "say": "A semaphore lets only a set number of tasks hold a slot at once. Six tasks over Semaphore(2) took 0.60 seconds with at most 2 in flight. It says nothing about how often calls start.",
+    "code": "sem = asyncio.Semaphore(8)\nasync def one(job):\n    async with sem:\n        return await call(job)",
+    "rem": "A semaphore counts calls in flight, not starts per second."
+  },
+  {
+    "t": "Rate limits and Little's law",
+    "s": "In flight is about rate times latency",
+    "say": "If each call takes 0.04 seconds and 8 are in flight, about 200 calls start every second (8 divided by 0.04). A provider that allows 100 refuses the rest with a 429. Fewer in flight, or a pace, is the cure. The result is the same either way: a limit on starts per second needs a gate, not only a semaphore.",
+    "code": "in flight  ~=  starts per second  x  seconds per call\n8          ~=  200               x  0.04",
+    "rem": "Compute it before you try it."
+  },
+  {
+    "t": "RateGate",
+    "s": "Space the starts, not the calls",
+    "say": "RateGate remembers when the next call may start and makes each caller wait until then. It needs no lock, because there is no await between reading the time and writing it back, so no other task can run in the middle. With a gate at 80 per second, 16 in flight drew no 429s and finished in 4.62 seconds.",
+    "code": "class RateGate:\n    \"\"\"Spaces out the START of calls: never more than `per_second` starts on average.\n\n    A semaphore limits how many calls are in flight. This limits how many calls begin. A\n    requests-per-minute limit is about the second thing, so a semaphore alone cannot keep you\n    under it. per_second = 0 switches the gate off.\n    \"\"\"\n\n    def __init__(self, per_second: float, clock: Callable[[], float] = time.monotonic) -> None:\n        self.interval = 1.0 / per_second if per_second > 0 else 0.0\n        self._clock = clock\n        self._next_start = 0.0\n\n    async def wait(self) -> None:\n        if not self.interval:\n            return\n        now = self._clock()\n        start = max(now, self._next_start)\n        self._next_start = start + self.interval  # no await between the read and this write\n        if start > now:\n            await asyncio.sleep(start - now)",
+    "rem": "Under the limit, with room. 80 beneath a limit of 100."
+  },
+  {
+    "t": "Keyed outcomes",
+    "s": "One result per key, whatever happened",
+    "say": "Every call returns a JobOutcome under its own key with a status: OK, FAILED, TIMEOUT or CANCELLED. Plain gather raises the first error and hides the rest. TaskGroup cancels the siblings. run_bounded returns all of them, and the batch came back after 0.30 seconds, not 2.0.",
+    "code": "A. plain gather: the first error is raised and the other two results are not returned\n   C-1004 refused the connection after 0.05 s, and nothing else came back\nB. TaskGroup: the first error cancels its siblings and is raised as an ExceptionGroup\n   C-1004 refused the connection after 0.05 s; C-1005 was cancelled\nC. run_bounded: one outcome per case_id, whatever happened (overall deadline 0.3 s)\n   C-1002  OK        C-1002 done\n   C-1004  FAILED    ConnectionError\n   C-1005  CANCELLED CancelledError\n   returned after 0.30 s, not 2.0",
+    "rem": "A failure is a value under a key, not an exception that hides the others."
+  },
+  {
+    "t": "Cancellation is not an ordinary error",
+    "s": "CancelledError is a BaseException",
+    "say": "CancelledError inherits from BaseException, so a bare except Exception does not catch it, and that is on purpose. Code that must clean up uses finally. A cancelled task is recorded as CANCELLED under its key, and the cancellation is then allowed to continue.",
+    "code": "try:\n    return await call(job)\nexcept Exception as err:        # does NOT catch CancelledError\n    return failed(job, err)",
+    "rem": "Never swallow a cancel."
+  },
+  {
+    "t": "Plan, then run",
+    "s": "Decide in case order, then overlap",
+    "say": "Skip, cache and cap are decisions about cases, so they are made one case at a time, in case order, before any call starts. Only then do the calls overlap. That is why the cap goes to the same cases at 1 and at 8 in flight. If each call decided for itself, the cap would go to whichever finished first.",
+    "code": "def plan_request(\n    request: SuggestRequest, settings: Settings, cache: SuggestionCache, budget: CallBudget\n) -> CaseSuggestion | None:\n    \"\"\"Everything decided in plain Python, before any waiting. None means: this one needs a call.\n\n    The order is the Class 8 order: skip check, then cache, then the cap. It runs one request at a\n    time and never awaits, so the cap is shared out in the order of the cases, the same way\n    every run. Each request that needs a call takes one place from the cap here.\n    \"\"\"\n    case_id, note = request.case_id, request.note\n    reason = skip_reason(note, settings.min_note_words)\n    if reason:\n        meta = CallMetadata(\"skipped\", settings.model, settings.prompt_version, 0, 0, \"skipped\")\n        return _status(case_id, note, meta, SuggestionStatus.ABSTAINED, reason)\n    cached = cache.get(cache_key(note, settings))\n    if cached is not None:\n        meta = CallMetadata(\n            \"cached\",\n            settings.model,\n            settings.prompt_version,\n            0,\n            0,\n            \"cache\",\n            \"reused from an earlier successful run\",\n        )\n        return interpret_reply(cached, case_id, note, meta)\n    if not budget.take():\n        return _unavailable(case_id, note, settings, CAP_REACHED)\n    return None",
+    "rem": "The plan is ordered. The run is not."
+  },
+  {
+    "t": "Proof by identical files",
+    "s": "Equivalence, not trust",
+    "say": "To show that concurrency changed speed and nothing else, run the same batch at 1 and at 8 in flight and compare the reports byte for byte. verify_alignment catches a mixed-up answer inside a run. The hashes catch anything else, between runs.",
+    "code": "attention   2d0ec51ba3a9   IDENTICAL\nquarantine  818c2322a6b1   IDENTICAL\ncost        a7c2750d84dd   IDENTICAL",
+    "rem": "Faster, and the same files."
+  },
+  {
+    "t": "The fallback",
+    "s": "One setting back to Class 8",
+    "say": "workers = 1 and max_concurrency = 1 reproduce the Class 8 path. If anything looks wrong in production, that is what you set first. It is also the way you get a before picture to compare against.",
+    "code": "[ai]\nmax_concurrency = 1\n[sources]\nworkers = 1",
+    "rem": "A change you cannot undo with one setting is too big."
+  }
+];
+  var tabs = $('#tabs'), cpanel = $('#cpanel');
+  function showTopic(i) {
+    var T = TOPICS[i];
+    $$('#tabs .tab').forEach(function (b, j) {
+      b.setAttribute('aria-selected', j === i ? 'true' : 'false');
+    });
+    cpanel.innerHTML = '';
+    var h = document.createElement('h3'); h.textContent = T.t;
+    var say = document.createElement('div'); say.className = 'say'; say.innerHTML = '<b>In plain words</b>';
+    var sp = document.createElement('span'); sp.textContent = T.say; say.appendChild(sp);
+    var code = document.createElement('div'); code.className = 'code';
+    var pre = document.createElement('pre'); pre.textContent = T.code; code.appendChild(pre);
+    var rem = document.createElement('ul'); rem.className = 'rem';
+    var li = document.createElement('li'); li.textContent = T.rem; rem.appendChild(li);
+    cpanel.appendChild(h); cpanel.appendChild(say); cpanel.appendChild(code); cpanel.appendChild(rem);
+  }
+  TOPICS.forEach(function (T, i) {
+    var b = document.createElement('button');
+    b.className = 'tab'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', 'false');
+    b.innerHTML = esc(T.t) + '<small>' + esc(T.s) + '</small>';
+    b.addEventListener('click', function () { showTopic(i); });
+    tabs.appendChild(b);
+  });
+  showTopic(0);
+
+  /* ---------- order game: one suggestion, step by step ---------- */
+  var STEPS = [
+  "Record the before picture: 5,000 rows one by one, with the three fingerprints",
+  "Name the wait: how much of the run is waiting, and how much is computing",
+  "Pull the three sources together, each outcome kept under its source name",
+  "Measure a process pool, and leave it out when the jobs are small",
+  "Learn the asyncio basics: await, gather, timeout, Semaphore, and never block",
+  "Write run_bounded: one outcome per key, with an overall deadline",
+  "Plan in case order, then run the calls together and verify the alignment",
+  "Handle timeouts and 429s, then add a rate gate under the provider limit",
+  "Compare the reports byte for byte at 1 and at 8 in flight"
+];
+  var ordOrder = [], ordTurn = 0;
+  var ordPool = $('#ordPool'), ordAns = $('#ordAns'), ordHint = $('#ordHint');
+  function ordShuffle() {
+    var idx = STEPS.map(function (_, i) { return i; });
+    for (var i = idx.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+    ordOrder = []; ordTurn = 0;
+    ordPool.innerHTML = ''; ordAns.innerHTML = ''; ordHint.className = 'hint'; ordHint.textContent = '';
+    idx.forEach(function (s) {
+      var c = document.createElement('button'); c.className = 'chip'; c.textContent = STEPS[s]; c.setAttribute('aria-pressed', 'false');
+      c.addEventListener('click', function () {
+        if (s === ordOrder.length) {
+          ordOrder.push(s); c.remove();
+          var row = document.createElement('div'); row.textContent = ordOrder.length + '. ' + STEPS[s]; ordAns.appendChild(row);
+          if (ordOrder.length === STEPS.length) { ordHint.className = 'hint good'; ordHint.textContent = 'In order. Record the before picture, name the wait, overlap it, keep every answer under its key, pace the starts, then prove the reports did not change.'; }
+          else { ordHint.className = 'hint'; ordHint.textContent = 'Correct. Now the next step.'; }
+        } else {
+          ordHint.className = 'hint bad';
+          ordHint.textContent = 'Not yet. Think about what must exist before this step can run.';
+          c.classList.add('sel'); setTimeout(function () { c.classList.remove('sel'); }, 500);
+        }
+      });
+      ordPool.appendChild(c);
+    });
+  }
+  $('#ordReset').addEventListener('click', ordShuffle);
+  ordShuffle();
+
+  /* ---------- sorters ---------- */
+  function sorter(el, bins, items, doneMsg) {
+    var sel = null, left = items.length, wrong = 0;
+    var pool = document.createElement('div'); pool.className = 'pool';
+    var hint = document.createElement('p'); hint.className = 'hint';
+    var grid = document.createElement('div'); grid.className = 'bins';
+    var chips = [];
+    items.forEach(function (it) {
+      var c = document.createElement('button'); c.className = 'chip'; c.textContent = it.t; c.setAttribute('aria-pressed', 'false');
+      c.addEventListener('click', function () {
+        chips.forEach(function (x) { x.classList.remove('sel'); x.setAttribute('aria-pressed', 'false'); });
+        sel = it; c.classList.add('sel'); c.setAttribute('aria-pressed', 'true');
+        hint.className = 'hint'; hint.textContent = 'Now click the bin for this item.';
+      });
+      it.chip = c; chips.push(c); pool.appendChild(c);
+    });
+    bins.forEach(function (b) {
+      var d = document.createElement('button'); d.className = 'bin';
+      d.innerHTML = '<b>' + esc(b.label) + '</b><span class="why">' + esc(b.sub || '') + '</span><span class="placed"></span>';
+      d.addEventListener('click', function () {
+        if (!sel) { hint.className = 'hint'; hint.textContent = 'Click an item first, then a bin.'; return; }
+        var it = sel;
+        if (it.bin === b.k) {
+          var s = document.createElement('span'); s.textContent = it.t; $('.placed', d).appendChild(s);
+          pool.removeChild(it.chip); sel = null; left--;
+          hint.className = 'hint good'; hint.textContent = 'Correct. ' + it.why;
+          if (!left) {
+            var e = document.createElement('span'); e.className = 'empty'; e.textContent = 'All sorted.'; pool.appendChild(e);
+            hint.textContent = (wrong === 0 ? 'Perfect, with no mistakes. ' : 'All sorted, with ' + wrong + ' wrong ' + (wrong === 1 ? 'try' : 'tries') + '. ') + (doneMsg || '');
+          }
+        } else {
+          wrong++; d.classList.add('flash'); setTimeout(function () { d.classList.remove('flash'); }, 500);
+          hint.className = 'hint bad'; hint.textContent = 'Not quite. ' + (it.hint || 'Think about when the value is known.');
+        }
+      });
+      grid.appendChild(d);
+    });
+    el.appendChild(pool); el.appendChild(hint); el.appendChild(grid);
+  }
+  sorter($('#sortWhen'), [
+  {
+    "k": "thread",
+    "label": "Thread pool",
+    "sub": "blocking code that waits"
+  },
+  {
+    "k": "async",
+    "label": "asyncio",
+    "sub": "code written with await"
+  },
+  {
+    "k": "proc",
+    "label": "Process pool",
+    "sub": "large computing"
+  }
+], [
+  {
+    "t": "Pulling three sources with ordinary blocking functions",
+    "bin": "thread",
+    "why": "The code already blocks while it waits, and a thread lets go of the interpreter while it does. Threads overlap those waits without rewriting it.",
+    "hint": "Is the code already written with await?"
+  },
+  {
+    "t": "Several hundred model calls through a client that is already async def",
+    "bin": "async",
+    "why": "The client was written for await, so the loop can overlap the calls on one thread, with a semaphore and a gate to bound them.",
+    "hint": "Which one fits code that already awaits?"
+  },
+  {
+    "t": "Hashing every file in a large archive, with a lot of work per file",
+    "bin": "proc",
+    "why": "It is computing, not waiting, and each item is big enough to pay for pickling and start-up. Only separate processes run Python code in parallel.",
+    "hint": "Is it waiting or computing?"
+  },
+  {
+    "t": "Calling time.sleep(0.2) for five jobs inside an async def",
+    "bin": "thread",
+    "why": "This is a blocking call, so it freezes the loop. Either replace it with await asyncio.sleep, or run it in a thread so the loop stays free.",
+    "hint": "What fits blocking code?"
+  },
+  {
+    "t": "Five waits written as await asyncio.sleep(0.2) under gather",
+    "bin": "async",
+    "why": "Each await hands control back to the loop. All five finish together in 0.20 seconds on one thread.",
+    "hint": "Await, one thread"
+  },
+  {
+    "t": "Eight 0.2-second waits written as plain blocking calls",
+    "bin": "thread",
+    "why": "Plain blocking waits overlap on four threads: 1.60 seconds became 0.40.",
+    "hint": "Blocking code"
+  },
+  {
+    "t": "A job of 100,000 rounds of computing per item",
+    "bin": "proc",
+    "why": "At that size the pool took 3.521 seconds against 6.861 one by one, so separate processes pay for their start-up and pickling.",
+    "hint": "Large, computing"
+  },
+  {
+    "t": "A fast, small web call that already has a blocking client library",
+    "bin": "thread",
+    "why": "The library blocks, so threads are the cheapest way to overlap it. Keep the pool small and put a timeout on each pull.",
+    "hint": "Blocking client"
+  }
+], 'Sorted. If the time goes to waiting, overlap it; if it goes to computing, measure the size first.');
+  sorter($('#sortGit'), [
+  {
+    "k": "sem",
+    "label": "Semaphore",
+    "sub": "calls in flight"
+  },
+  {
+    "k": "gate",
+    "label": "Rate gate",
+    "sub": "starts per second"
+  }
+], [
+  {
+    "t": "max_concurrency = 8",
+    "bin": "sem",
+    "why": "It bounds how many calls hold a slot at the same moment, which is calls in flight.",
+    "hint": "Counts calls at one moment"
+  },
+  {
+    "t": "requests_per_second = 80",
+    "bin": "gate",
+    "why": "It spaces the starts of calls, which is what a provider's rate limit counts.",
+    "hint": "Counts starts"
+  },
+  {
+    "t": "Sixteen in flight at 0.04 s each, with no pace, drew 77 429s",
+    "bin": "gate",
+    "why": "Sixteen in flight at 0.04 s starts about 400 calls a second. A gate is what keeps that below the provider limit of 100.",
+    "hint": "Too many starts"
+  },
+  {
+    "t": "At most 2 of the 6 tasks ran at once",
+    "bin": "sem",
+    "why": "Semaphore(2) held four tasks back until a slot was free. The run took 0.60 seconds.",
+    "hint": "Slots"
+  },
+  {
+    "t": "Needs no lock, because nothing awaits between reading the time and writing it back",
+    "bin": "gate",
+    "why": "RateGate reads and updates when the next call may start in one step, so no other task can run in the middle.",
+    "hint": "Next allowed start"
+  },
+  {
+    "t": "Protects a provider that cannot keep up with a long queue of work in progress",
+    "bin": "sem",
+    "why": "Too many calls in flight at once can overwhelm a service even when each start is polite. A semaphore bounds that.",
+    "hint": "Work in progress"
+  }
+], 'Sorted. A semaphore counts calls in flight; a gate counts starts per second.');
+
+  /* ---------- take-home sheet ---------- */
+  var TASKS = [
+  {
+    "t": "Record your own before picture",
+    "tool": "bench.py",
+    "ans": "Build the 5,000-row export, then run the live bench with one worker and one call in flight. Your seconds will differ from the ones on this page (a different machine), but the shape should match: about 315 calls and 235 usable suggestions with no cap. Keep the three report hashes; every later run is compared against them.",
+    "code": "python -m meridian_workbench.make_export --rows 5000 --out scratch/export5k\npython -m meridian_workbench.bench --data scratch/export5k --mode live --latency --workers 1 --concurrency 1 --out scratch/out_one"
+  },
+  {
+    "t": "See waiting and computing separately",
+    "tool": "s2_io_cpu.py",
+    "ans": "Eight waits of 0.2 seconds fall from about 1.6 seconds to about 0.4 on four threads. Eight pieces of computing barely change: about 1.7 seconds to about 1.6. If your computing result got much faster, check that you are not accidentally running a waiting job.",
+    "code": "python scratch/s2_io_cpu.py\n\n# expected shape:\n# wait, one by one 1.60 s   wait, four threads 0.40 s\n# cpu,  one by one 1.73 s   cpu,  four threads 1.63 s"
+  },
+  {
+    "t": "map or as_completed?",
+    "tool": "s3b_futures.py",
+    "ans": "as_completed reported inventory, notes, shipments: the order they finished. map gave them back in the order you asked, so it waited on the slowest first. Predict the order before you run it. A timeout of 0.20 seconds stops the waiting; the thread still finished after about a second.",
+    "code": "python scratch/s3b_futures.py"
+  },
+  {
+    "t": "Keyed outcome or zip?",
+    "tool": "s6_naive_zip.py and s6_keyed.py",
+    "ans": "The naive version pairs answers with cases by position in finish order, and in the class run 18 of 20 were beside the wrong case. The keyed version keeps each result under its case_id, and 0 of 20 are wrong. Run each twice: the number of wrong answers may differ, the pattern will not. In the keyed demo, one call fails and one is cancelled, and both are returned as outcomes after 0.30 seconds.",
+    "code": "python scratch/s6_naive_zip.py\npython scratch/s6_keyed.py"
+  },
+  {
+    "t": "Watch a provider refuse calls, then stop it",
+    "tool": "s8_rate.py",
+    "ans": "With 1 in flight there are no 429s but the run is slow (13.31 s). With 8 in flight there are some 429s (20 in class) and the run is fast. With 16 in flight there are many (77) and a few cases are lost to them. With 16 in flight behind a gate at 80 per second, there are none and every suggestion is kept (4.62 s). Your 429 counts will differ from run to run.",
+    "code": "python scratch/s8_rate.py\n\n# in flight  starts/s gate  seconds  429s  usable\n#        1            off    13.31     0     235\n#        8            off     3.64    20     235\n#       16            off     3.76    77     231\n#       16             80     4.62     0     235"
+  },
+  {
+    "t": "A timeout that does not stop the work",
+    "tool": "s8_timeout.py",
+    "ans": "The batch returns after about 0.31 seconds with C-1002 marked UNAVAILABLE after three attempts. A few threads are still alive right after, and none one second later. The slow note received three calls, one for each attempt. The lesson is that the timeout stops the waiting, so a call that may be slow should be designed to be safe to repeat.",
+    "code": "python scratch/s8_timeout.py"
+  },
+  {
+    "t": "Prove nothing else changed",
+    "tool": "prove.py",
+    "ans": "Run the same 5,000 rows at 1 and at 8 in flight with the default controls, save both runs with --out, and compare the three report hashes. They must be identical. Then run it with the cap set to zero on 20,000 rows. The hashes must still match.",
+    "code": "python scratch/prove.py\n\n# attention   2d0ec51ba3a9   IDENTICAL\n# quarantine  818c2322a6b1   IDENTICAL\n# cost        a7c2750d84dd   IDENTICAL"
+  }
+];
+  var tasksBox = $('#tasks');
+  TASKS.forEach(function (T, i) {
+    var d = document.createElement('details'); d.className = 'task';
+    var s = document.createElement('summary');
+    s.innerHTML = '<span class="no">' + (i + 1) + '</span><span>' + esc(T.t) + '</span><span class="tool">' + esc(T.tool) + '</span>';
+    var a = document.createElement('div'); a.className = 'ans';
+    var p = document.createElement('p'); p.textContent = T.ans; a.appendChild(p);
+    if (T.code) { var c = document.createElement('div'); c.className = 'code'; var pre = document.createElement('pre'); pre.textContent = T.code; c.appendChild(pre); a.appendChild(c); }
+    d.appendChild(s); d.appendChild(a); tasksBox.appendChild(d);
+  });
+
+  /* ---------- troubleshooting ---------- */
+  var TROUBLE = [
+  [
+    "ModuleNotFoundError: No module named 'meridian_workbench.simulated'",
+    "The starter files were not copied into src/meridian_workbench/",
+    "Copy simulated.py, cpu_work.py and config/limits.toml from the starter pack, then run the tests again"
+  ],
+  [
+    "The run is not faster with workers = 3",
+    "The sources are local files, or they were never the slow part",
+    "Measure first. On local files, threads gave 0.31 s against 0.31 s. The model calls are where the time goes"
+  ],
+  [
+    "Results come back in a different order each run",
+    "as_completed gives results in the order they finish",
+    "Key the result by its case_id and sort the final output in case order. Do not rely on position"
+  ],
+  [
+    "ReconciliationError: answer N is for C-.../..., but request N was C-.../...",
+    "Results were paired with cases by position in finish order",
+    "Keep each result under its own key, and never zip a finish-ordered list with an ordered one"
+  ],
+  [
+    "429 from the simulated provider, and some cases are marked rate limited",
+    "Too many calls start per second for the limit in limits.toml",
+    "Set requests_per_second below the limit, such as 80 under 100, or lower max_concurrency. Re-run to see the 429 count go to 0"
+  ],
+  [
+    "Five asyncio waits take 1.00 s, not 0.20 s",
+    "A blocking call such as time.sleep is inside a coroutine",
+    "Replace it with await asyncio.sleep, or move the blocking call to a thread"
+  ],
+  [
+    "RuntimeError: asyncio.run() cannot be called from a running event loop",
+    "asyncio.run was called inside a notebook or another async function",
+    "Use await directly in a notebook, or call asyncio.run only once at the top level of a script"
+  ],
+  [
+    "The timeout fired but the program kept running for another second",
+    "A timeout on a future stops the waiting, not the thread",
+    "Expect it. Make the work safe to repeat and let the threads finish; they are gone about a second later"
+  ],
+  [
+    "AttributeError: Can't pickle local object ... in ProcessPoolExecutor",
+    "The function sent to the pool is defined inside another function",
+    "Define it at the top level of a module so it can be pickled"
+  ],
+  [
+    "The process pool is slower than one by one",
+    "Start-up and pickling cost more than the work saves, because the jobs are small",
+    "Use a pool only for large items. 100 rounds took 0.007 s one by one and 0.043 s on the pool"
+  ],
+  [
+    "pytest shows a different number of tests than 220 passed",
+    "A new test file is missing, or an old one was changed",
+    "Compare against the file list in the Final directory and run pytest tests/test_concurrency.py tests/test_async_ai.py -v"
+  ],
+  [
+    "Fingerprints: DIFFERENT from before",
+    "A change altered a report: a cap decided per call, or a changed sort order",
+    "Set max_concurrency = 1 and workers = 1, find the first report that differs, and fix the order of the plan"
+  ]
+];
+  var trBody = $('#trTable tbody');
+  TROUBLE.forEach(function (r) {
+    var tr = document.createElement('tr');
+    r.forEach(function (cell, i) { var td = document.createElement('td'); if (i === 0) td.innerHTML = '<code>' + esc(cell) + '</code>'; else td.textContent = cell; tr.appendChild(td); });
+    trBody.appendChild(tr);
+  });
+  $('#trFilter').addEventListener('input', function () {
+    var q = this.value.trim().toLowerCase(), shown = 0;
+    $$('#trTable tbody tr').forEach(function (tr) {
+      var ok = !q || tr.textContent.toLowerCase().indexOf(q) > -1;
+      tr.style.display = ok ? '' : 'none'; if (ok) shown++;
+    });
+    $('#trNone').style.display = shown ? 'none' : '';
+  });
+
+  var FAQ = [
+  [
+    "Why not use threads for everything?",
+    "Threads only help while a thread is waiting, because a computing thread keeps the interpreter lock. Four threads on computing took 1.63 seconds against 1.73 seconds on one. Use threads for waiting and measure before you add them."
+  ],
+  [
+    "Is asyncio faster than threads?",
+    "For this run, no: native asyncio took 4.95 seconds and eight threads at 80 per second took 4.99. The gain comes from overlapping the waits, not from the tool. asyncio makes it cheaper to hold many waits at once, and it fits code that is already async."
+  ],
+  [
+    "Why a semaphore and a rate gate? Is one not enough?",
+    "They count different things. A semaphore counts how many calls are in flight. A rate limit counts how many start each second. Eight in flight at 0.04 seconds each starts about 200 a second, which is over a limit of 100, so you need the gate."
+  ],
+  [
+    "Why plan first? Can each call just check the cap itself?",
+    "If each call checks, the cap goes to whichever calls happen to finish first, and that changes from run to run. A plan in case order gives the cap to the same cases every time, so the reports are identical at 1 and at 8 in flight."
+  ],
+  [
+    "What do I do if the real provider's limit is not the one in limits.toml?",
+    "Change the number and its date in config/limits.toml, and keep requests_per_second under it with room to spare. The classroom limit of 100 is a stand-in, so nothing here is a real quote."
+  ],
+  [
+    "Can I trust the seconds on this page?",
+    "Read the ratios. Every wait here is simulated: 0.04 seconds per model call, 0.25 to 0.40 seconds per source pull, and a 100-per-second provider limit. A real call takes about a second, so real gains will be larger and real limits will differ."
+  ]
+];
+  var faq = $('#faq');
+  FAQ.forEach(function (f) {
+    var d = document.createElement('details'); d.className = 'task';
+    var s = document.createElement('summary'); s.innerHTML = '<span></span><span>' + esc(f[0]) + '</span>';
+    var a = document.createElement('div'); a.className = 'ans'; var p = document.createElement('p'); p.textContent = f[1]; a.appendChild(p);
+    d.appendChild(s); d.appendChild(a); faq.appendChild(d);
+  });
+
+  /* ---------- quiz ---------- */
+  var QUIZ = [
+  {
+    "q": "A run takes 14.25 seconds, and about 13.5 of them are spent waiting on calls. What is the first sensible change?",
+    "o": [
+      "Move the work to a process pool so that it can use every core",
+      "Overlap the waits, then measure again against the before picture",
+      "Rewrite the loops in a faster style before changing anything else",
+      "Cut the number of rows until the run is short enough to accept"
+    ],
+    "a": 1,
+    "e": "Waiting can be overlapped, and nothing else has to change. A process pool does nothing for waiting, and rewriting loops touches the small part. You measure again against the before picture to see the real gain."
+  },
+  {
+    "q": "Eight calls are in flight at 0.04 seconds each, and the provider allows 100 starts per second. What happens with no pace?",
+    "o": [
+      "Nothing, because eight is below the limit of 100",
+      "The calls are queued by the provider and all succeed",
+      "The semaphore refuses the extra calls before they start",
+      "About 200 calls start per second, so some get a 429"
+    ],
+    "a": 3,
+    "e": "In flight is about rate times latency, so 8 in flight at 0.04 seconds starts about 200 a second. That is over 100. A semaphore counts calls in flight, not starts per second, so a gate is needed."
+  },
+  {
+    "q": "A call to a thread-pool future times out after 0.20 seconds. What is true of the thread?",
+    "o": [
+      "It keeps running, so the call must be safe to repeat",
+      "It is stopped at once, and its result is thrown away unread",
+      "It is stopped when the next batch starts running in the pool",
+      "It is paused until the pool has room to resume it"
+    ],
+    "a": 0,
+    "e": "A timeout stops the waiting, not the thread. In class the slow note received three calls, one for each attempt, and the threads were gone about a second later."
+  },
+  {
+    "q": "Twenty answers are collected as they finish and zipped with the cases in order. What is the likely result?",
+    "o": [
+      "The run fails with an exception on the first mismatch it sees",
+      "Each answer is matched by its text, so every one is correct",
+      "Most answers sit beside the wrong case, with no error raised",
+      "The answers are sorted back into order by the standard library"
+    ],
+    "a": 2,
+    "e": "Finish order is not the order of asking. In the demonstration 18 of 20 were beside the wrong case and nothing crashed. Key each result by its case_id and check the alignment."
+  },
+  {
+    "q": "Why are skip, cache and cap decided in a plan, in case order, before any call starts?",
+    "o": [
+      "Deciding inside each call is slower than planning them first",
+      "asyncio does not allow any decision inside a coroutine at all",
+      "A plan lets the provider count the calls in advance for us",
+      "The cap goes to the same cases, whatever the finish order is"
+    ],
+    "a": 3,
+    "e": "If each call decided for itself, the cap would go to whichever calls finished first, and the reports would change from run to run. A plan in case order gives identical reports at 1 and at 8 in flight."
+  },
+  {
+    "q": "Which result best shows that a faster run changed nothing else?",
+    "o": [
+      "The tests pass and the run took less time than before",
+      "The three reports match byte for byte at 1 and at 8",
+      "The total number of model calls is smaller than before",
+      "Every case has a status of OK in the final output"
+    ],
+    "a": 1,
+    "e": "Identical files at 1 and at 8 in flight are the proof. Passing tests and fewer seconds do not show that nothing moved, and OK statuses say nothing about whether answers sit beside the right cases."
+  }
+];
+  var quizBox = $('#quizBox'), scoreEl = $('#score'), answered = 0, right = 0;
+  QUIZ.forEach(function (it, qi) {
+    var q = document.createElement('div'); q.className = 'q';
+    var qh = document.createElement('div'); qh.className = 'qh'; qh.innerHTML = '<span>Question ' + (qi + 1) + ' of ' + QUIZ.length + '</span>';
+    var qt = document.createElement('p'); qt.className = 'qt'; qt.textContent = it.q;
+    var opts = document.createElement('div'); opts.className = 'opts';
+    var fb = document.createElement('div'); fb.className = 'fb'; fb.style.display = 'none';
+    var btns = [];
+    it.o.forEach(function (txt, oi) {
+      var b = document.createElement('button'); b.className = 'opt'; b.setAttribute('type', 'button');
+      var sp = document.createElement('span'); sp.textContent = txt; b.appendChild(sp); btns.push(b);
+      b.addEventListener('click', function () {
+        if (btns.some(function (x) { return x.disabled; })) return;
+        btns.forEach(function (x) { x.disabled = true; });
+        answered++;
+        fb.style.display = '';
+        if (oi === it.a) { b.classList.add('right'); right++; fb.className = 'fb good'; fb.textContent = 'Correct. ' + it.e; }
+        else { b.classList.add('wrong'); btns[it.a].classList.add('right'); fb.className = 'fb bad'; fb.textContent = 'Not quite. ' + it.e; }
+        setText(scoreEl, 'Score: ' + right + ' of ' + QUIZ.length + (answered === QUIZ.length ? (right === QUIZ.length ? '. Great work.' : '. Re-read the sections for any you missed, then reload the page to try again.') : ''));
+      });
+      opts.appendChild(b);
+    });
+    q.appendChild(qh); q.appendChild(qt); q.appendChild(opts); q.appendChild(fb); quizBox.appendChild(q);
+  });
+
+  /* ---------- reflect checklist (saved in this browser only) ---------- */
+  var checks = {};
+  try { checks = JSON.parse(localStorage.getItem('c9postread') || '{}') || {}; } catch (e) { checks = {}; }
+  $$('#finalChecks li').forEach(function (li) {
+    var ck = $('.ck', li);
+    function paint(on) { li.classList.toggle('done', on); ck.textContent = on ? '✓' : ''; }
+    paint(!!checks[li.dataset.check]);
+    li.addEventListener('click', function () {
+      checks[li.dataset.check] = !checks[li.dataset.check];
+      paint(!!checks[li.dataset.check]);
+      try { localStorage.setItem('c9postread', JSON.stringify(checks)); } catch (e) { /* ignore */ }
+    });
+  });
+})();
+
+</script>
+</body>
+</html>
